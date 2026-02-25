@@ -411,7 +411,7 @@ Please review this franchise application. Thank you!`;
               <div className="space-y-3 sm:space-y-4 relative z-10">
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/15 transition-all">
                   <p className="text-xs sm:text-sm text-white/80 mb-1 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" />Initial Investment
+                    <span className="text-sm font-bold leading-none w-4 h-4 flex items-center justify-center">{curr.symbol}</span>Initial Investment
                   </p>
                   <p className="text-xl sm:text-2xl font-bold">{curr.investmentRange}</p>
                 </div>
@@ -523,7 +523,7 @@ Please review this franchise application. Thank you!`;
                       Investment Capacity ({curr.code}) <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#1aa6b3]/60" />
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-xs font-bold text-[#1aa6b3]/60 w-4 h-4 flex items-center justify-center">{curr.symbol}</span>
                       <select name="investment" value={formData.investment} onChange={handleInputChange}
                         className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all appearance-none bg-white hover:border-gray-300 text-[#1aa6b3] text-sm">
                         <option value="">Select investment range</option>
