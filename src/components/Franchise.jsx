@@ -254,30 +254,6 @@ Please review this franchise application. Thank you!`;
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-[#1aa6b3]/5 rounded-full blur-3xl"></div>
       </div>
 
-      {/* ── Currency Toggle Bar ── */}
-      <div className="relative z-20 bg-white/80 backdrop-blur-sm border-b border-[#1aa6b3]/10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex justify-end items-center gap-3">
-          <span className="text-xs font-semibold text-[#1aa6b3]/60 uppercase tracking-wider">Currency</span>
-          <div className="flex items-center bg-gray-100 rounded-full p-1 gap-1">
-            {Object.values(CURRENCIES).map((c) => (
-              <button
-                key={c.code}
-                onClick={() => setCurrency(c.code)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${
-                  currency === c.code
-                    ? 'bg-gradient-to-r from-[#1aa6b3] to-[#158993] text-white shadow-md scale-105'
-                    : 'text-gray-500 hover:text-[#1aa6b3] hover:bg-white'
-                }`}
-              >
-                <span className="text-sm">{c.flag}</span>
-                <span>{c.symbol}</span>
-                <span className="hidden sm:inline">{c.code}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
       <section 
         ref={heroRef}
         className="fade-in-up relative overflow-hidden bg-gradient-to-br from-white via-[#1aa6b3]/5 to-white text-[#1aa6b3] pt-10 pb-12 md:pt-14 md:pb-16 px-4"
@@ -392,6 +368,32 @@ Please review this franchise application. Thank you!`;
 
       {/* Application Form & Investment Section */}
       <section ref={investmentRef} className="fade-in-up max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
+
+        {/* ── Currency Switcher ── */}
+        <div className="stagger-item flex items-center justify-between mb-4 bg-white rounded-2xl shadow-md px-5 py-3 border border-[#1aa6b3]/20">
+          <div className="flex items-center gap-2">
+            <DollarSign className="w-4 h-4 text-[#1aa6b3]" />
+            <span className="text-sm font-semibold text-[#1aa6b3]">Select Currency</span>
+          </div>
+          <div className="flex items-center bg-gray-100 rounded-full p-1 gap-1">
+            {Object.values(CURRENCIES).map((c) => (
+              <button
+                key={c.code}
+                onClick={() => setCurrency(c.code)}
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${
+                  currency === c.code
+                    ? 'bg-gradient-to-r from-[#1aa6b3] to-[#158993] text-white shadow-md scale-105'
+                    : 'text-gray-500 hover:text-[#1aa6b3] hover:bg-white'
+                }`}
+              >
+                <span className="text-base">{c.flag}</span>
+                <span>{c.symbol}</span>
+                <span>{c.code}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border-t-4 border-[#1aa6b3]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Left Column - Investment Details */}
