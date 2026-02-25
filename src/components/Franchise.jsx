@@ -5,12 +5,47 @@ import {
   Briefcase, GraduationCap, BarChart3, Copy, Sparkles, Clock, Play
 } from 'lucide-react';
 
+// Currency configuration
+const CURRENCIES = {
+  INR: {
+    code: 'INR',
+    symbol: '₹',
+    label: 'Indian Rupee',
+    flag: '🇮🇳',
+    short: '₹ INR',
+    // Conversion rate: 1 INR = ~0.011 CAD (approximate)
+    investmentRange: '₹10 - ₹50 Lakhs',
+    roi: '25-35% Annually',
+    payback: '2-3 Years',
+    franchiseFee: '₹2-5 Lakhs',
+    investmentOptions: ['₹5-10 Lakhs', '₹10-20 Lakhs', '₹20-50 Lakhs', '₹50 Lakhs+'],
+    faqFee: '₹2-5 lakhs based on location',
+  },
+  CAD: {
+    code: 'CAD',
+    symbol: 'CA$',
+    label: 'Canadian Dollar',
+    flag: '🇨🇦',
+    short: 'CA$ CAD',
+    // Approx: ₹10L = CA$16,500 | ₹50L = CA$82,500
+    investmentRange: 'CA$16,500 - CA$82,500',
+    roi: '25-35% Annually',
+    payback: '2-3 Years',
+    franchiseFee: 'CA$3,300 - CA$8,250',
+    investmentOptions: ['CA$8,250 - CA$16,500', 'CA$16,500 - CA$33,000', 'CA$33,000 - CA$82,500', 'CA$82,500+'],
+    faqFee: 'CA$3,300 - CA$8,250 based on location',
+  }
+};
+
 const Franchise = () => {
+  const [currency, setCurrency] = useState('INR');
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState('');
   const [showCopySuccess, setShowCopySuccess] = useState(false);
   const [generatedApplicationNumber, setGeneratedApplicationNumber] = useState('');
+
+  const curr = CURRENCIES[currency];
 
   const companyPhone = '+91-7014638562';
   const companyWhatsApp = '917014638562';
@@ -44,15 +79,12 @@ const Franchise = () => {
   useEffect(() => {
     const handleScrollAnimations = () => {
       const sections = [heroRef, benefitsRef, videosRef, investmentRef, faqRef];
-
       sections.forEach((ref) => {
         if (ref.current && !ref.current.classList.contains('animate-in')) {
           const rect = ref.current.getBoundingClientRect();
           const isVisible = rect.top < window.innerHeight * 0.9;
-          
           if (isVisible) {
             ref.current.classList.add('animate-in');
-            
             const children = ref.current.querySelectorAll('.stagger-item');
             children.forEach((child, index) => {
               setTimeout(() => {
@@ -65,7 +97,6 @@ const Franchise = () => {
     };
 
     setTimeout(handleScrollAnimations, 50);
-
     let ticking = false;
     const onScroll = () => {
       if (!ticking) {
@@ -76,10 +107,8 @@ const Franchise = () => {
         ticking = true;
       }
     };
-
     window.addEventListener('scroll', onScroll);
     window.addEventListener('resize', handleScrollAnimations);
-
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', handleScrollAnimations);
@@ -88,64 +117,28 @@ const Franchise = () => {
 
   useEffect(() => {
     if (showCopySuccess) {
-      const timer = setTimeout(() => {
-        setShowCopySuccess(false);
-      }, 2000);
+      const timer = setTimeout(() => setShowCopySuccess(false), 2000);
       return () => clearTimeout(timer);
     }
   }, [showCopySuccess]);
 
+  // Reset investment selection when currency changes (since options change)
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, investment: '' }));
+  }, [currency]);
+
   const benefits = [
-    {
-      icon: Briefcase,
-      title: "Proven Business Model",
-      description: "Track record of growth and profitability"
-    },
-    {
-      icon: GraduationCap,
-      title: "Training & Support",
-      description: "Complete guidance to ensure success"
-    },
-    {
-      icon: BarChart3,
-      title: "Marketing Support",
-      description: "National campaigns & local assistance"
-    },
-    {
-      icon: Users,
-      title: "Strong Network",
-      description: "Community of successful franchisees"
-    }
+    { icon: Briefcase, title: "Proven Business Model", description: "Track record of growth and profitability" },
+    { icon: GraduationCap, title: "Training & Support", description: "Complete guidance to ensure success" },
+    { icon: BarChart3, title: "Marketing Support", description: "National campaigns & local assistance" },
+    { icon: Users, title: "Strong Network", description: "Community of successful franchisees" }
   ];
 
   const videos = [
-    {
-      id: "1",
-      title: "Franchise Overview",
-      embedUrl: "https://drive.google.com/file/d/153oijS9qkyp4_vk5qJ6M-T7N3EMyELgZ/preview"
-    },
-    {
-      id: "2",
-      title: "Success Stories",
-      embedUrl: "https://drive.google.com/file/d/1ALMQ6u0e7NrBUS--t-Xn3XBAZvNnUg86/preview"
-    },
-    {
-      id: "3",
-      title: "Training Process",
-      embedUrl: "https://drive.google.com/file/d/1nySCK-p4AT5bAmhwMJ-OQvAPclzCOXgf/preview"
-    },
-    {
-      id: "4",
-      title: "Operations Guide",
-      embedUrl: "https://drive.google.com/file/d/1S16XSKkPaumkojHYNb8jiaDqLDq7Yr9f/preview"
-    }
-  ];
-
-  const investmentOptions = [
-    '₹5-10 Lakhs',
-    '₹10-20 Lakhs',
-    '₹20-50 Lakhs',
-    '₹50 Lakhs+'
+    { id: "1", title: "Franchise Overview", embedUrl: "https://drive.google.com/file/d/153oijS9qkyp4_vk5qJ6M-T7N3EMyELgZ/preview" },
+    { id: "2", title: "Success Stories", embedUrl: "https://drive.google.com/file/d/1ALMQ6u0e7NrBUS--t-Xn3XBAZvNnUg86/preview" },
+    { id: "3", title: "Training Process", embedUrl: "https://drive.google.com/file/d/1nySCK-p4AT5bAmhwMJ-OQvAPclzCOXgf/preview" },
+    { id: "4", title: "Operations Guide", embedUrl: "https://drive.google.com/file/d/1S16XSKkPaumkojHYNb8jiaDqLDq7Yr9f/preview" }
   ];
 
   const handleInputChange = (e) => {
@@ -169,12 +162,11 @@ Email: ${applicationData.email}
 Phone: ${applicationData.phone}
 City: ${applicationData.city}
 
-💰 *Investment Capacity:* ${applicationData.investment}
+💰 *Investment Capacity:* ${applicationData.investment} (${currency})
 
 💼 *Business Experience:* ${applicationData.experience || 'Not specified'}
 
-${applicationData.message ? `💬 *Additional Information:*
-${applicationData.message}` : ''}
+${applicationData.message ? `💬 *Additional Information:\n${applicationData.message}` : ''}
 
 Please review this franchise application. Thank you!`;
 
@@ -190,24 +182,14 @@ Please review this franchise application. Thank you!`;
 
     const newApplicationNumber = generateApplicationNumber();
     setGeneratedApplicationNumber(newApplicationNumber);
-
     setIsSubmitting(true);
     setSubmitStatus('');
 
     const capturedFormData = { ...formData };
 
     try {
-      const currentDate = new Date().toLocaleDateString('en-IN', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-
-      const currentTime = new Date().toLocaleTimeString('en-IN', {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+      const currentDate = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const currentTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
       const formElement = document.createElement('form');
       formElement.action = 'https://formsubmit.co/ajax/laundryforalllfa@gmail.com';
@@ -221,20 +203,17 @@ Please review this franchise application. Thank you!`;
         '_cc': formData.email,
         '_captcha': 'false',
         '_next': window.location.href,
-        
         'Application Number': newApplicationNumber,
         'Application Date': currentDate,
         'Application Time': currentTime,
-        
+        'Currency': currency,
         'Applicant Name': formData.name,
         'Applicant Email': formData.email,
         'Applicant Phone': formData.phone,
         'City': formData.city,
-        'Investment Capacity': formData.investment,
+        'Investment Capacity': `${formData.investment} (${currency})`,
         'Business Experience': formData.experience || 'Not specified',
         'Additional Message': formData.message || 'No additional information',
-        
-        '_confirmation': `Dear ${formData.name},\n\nThank you for your interest in LaundryForAll Franchise!\n\nYour application has been received with the following details:\n\n📋 Application Number: ${newApplicationNumber}\n💰 Investment Range: ${formData.investment}\n📍 Preferred City: ${formData.city}\n\nOur franchise team will review your application and contact you within 2-3 business days.\n\nBest regards,\nLaundryForAll Franchise Team\nPhone: ${companyPhone}\nEmail: ${companyEmail}`
       };
 
       Object.entries(fields).forEach(([name, value]) => {
@@ -249,25 +228,14 @@ Please review this franchise application. Thank you!`;
       formElement.submit();
 
       setTimeout(() => {
-        if (document.body.contains(formElement)) {
-          document.body.removeChild(formElement);
-        }
+        if (document.body.contains(formElement)) document.body.removeChild(formElement);
       }, 1000);
 
       sendWhatsAppMessage(newApplicationNumber, capturedFormData);
-
       setSubmitStatus('success');
-      
+
       setTimeout(() => {
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          city: '',
-          investment: '',
-          experience: '',
-          message: ''
-        });
+        setFormData({ name: '', email: '', phone: '', city: '', investment: '', experience: '', message: '' });
       }, 3000);
 
     } catch (error) {
@@ -286,10 +254,33 @@ Please review this franchise application. Thank you!`;
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-[#1aa6b3]/5 rounded-full blur-3xl"></div>
       </div>
 
-      {/* ✅ FIXED: Added pt-24 md:pt-28 to push content below navbar */}
+      {/* ── Currency Toggle Bar ── */}
+      <div className="relative z-20 bg-white/80 backdrop-blur-sm border-b border-[#1aa6b3]/10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex justify-end items-center gap-3">
+          <span className="text-xs font-semibold text-[#1aa6b3]/60 uppercase tracking-wider">Currency</span>
+          <div className="flex items-center bg-gray-100 rounded-full p-1 gap-1">
+            {Object.values(CURRENCIES).map((c) => (
+              <button
+                key={c.code}
+                onClick={() => setCurrency(c.code)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${
+                  currency === c.code
+                    ? 'bg-gradient-to-r from-[#1aa6b3] to-[#158993] text-white shadow-md scale-105'
+                    : 'text-gray-500 hover:text-[#1aa6b3] hover:bg-white'
+                }`}
+              >
+                <span className="text-sm">{c.flag}</span>
+                <span>{c.symbol}</span>
+                <span className="hidden sm:inline">{c.code}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <section 
         ref={heroRef}
-        className="fade-in-up relative overflow-hidden bg-gradient-to-br from-white via-[#1aa6b3]/5 to-white text-[#1aa6b3] pt-24 pb-12 md:pt-28 md:pb-16 px-4"
+        className="fade-in-up relative overflow-hidden bg-gradient-to-br from-white via-[#1aa6b3]/5 to-white text-[#1aa6b3] pt-10 pb-12 md:pt-14 md:pb-16 px-4"
       >
         <div className="absolute inset-0 bg-black opacity-5"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -302,7 +293,6 @@ Please review this franchise application. Thank you!`;
               </p>
             </div>
           )}
-          
           <div className="text-center">
             <h1 className="stagger-item text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 leading-tight bg-gradient-to-r from-[#1aa6b3] to-[#158993] bg-clip-text text-transparent">
               Join Our Franchise Family
@@ -311,28 +301,23 @@ Please review this franchise application. Thank you!`;
               Build your future with a proven business model and comprehensive support
             </p>
             <div className="flex flex-wrap justify-center gap-3 text-sm">
-              <span className="stagger-item flex items-center gap-2 bg-white text-[#1aa6b3] px-4 py-2 rounded-full hover:shadow-lg transition-all border border-[#1aa6b3]/20 hover:scale-105 cursor-default">
-                <Award className="w-4 h-4" />
-                <span className="font-semibold">Proven Model</span>
-              </span>
-              <span className="stagger-item flex items-center gap-2 bg-white text-[#1aa6b3] px-4 py-2 rounded-full hover:shadow-lg transition-all border border-[#1aa6b3]/20 hover:scale-105 cursor-default">
-                <TrendingUp className="w-4 h-4" />
-                <span className="font-semibold">High Returns</span>
-              </span>
-              <span className="stagger-item flex items-center gap-2 bg-white text-[#1aa6b3] px-4 py-2 rounded-full hover:shadow-lg transition-all border border-[#1aa6b3]/20 hover:scale-105 cursor-default">
-                <Users className="w-4 h-4" />
-                <span className="font-semibold">Full Support</span>
-              </span>
+              {[
+                { icon: Award, label: 'Proven Model' },
+                { icon: TrendingUp, label: 'High Returns' },
+                { icon: Users, label: 'Full Support' },
+              ].map(({ icon: Icon, label }) => (
+                <span key={label} className="stagger-item flex items-center gap-2 bg-white text-[#1aa6b3] px-4 py-2 rounded-full hover:shadow-lg transition-all border border-[#1aa6b3]/20 hover:scale-105 cursor-default">
+                  <Icon className="w-4 h-4" />
+                  <span className="font-semibold">{label}</span>
+                </span>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* Benefits Section */}
-      <section 
-        ref={benefitsRef}
-        className="fade-in-up max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10"
-      >
+      <section ref={benefitsRef} className="fade-in-up max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
         <h2 className="stagger-item text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-8 text-[#1aa6b3]">
           Why Choose Our Franchise?
         </h2>
@@ -340,10 +325,7 @@ Please review this franchise application. Thank you!`;
           {benefits.map((benefit, index) => {
             const IconComponent = benefit.icon;
             return (
-              <div 
-                key={index} 
-                className="stagger-item group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-5 sm:p-6 transform hover:-translate-y-2 border-2 border-[#1aa6b3]/30 hover:border-[#1aa6b3] overflow-hidden"
-              >
+              <div key={index} className="stagger-item group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-5 sm:p-6 transform hover:-translate-y-2 border-2 border-[#1aa6b3]/30 hover:border-[#1aa6b3] overflow-hidden">
                 <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-[#1aa6b3]/20 via-[#158993]/10 to-transparent blur-xl"></div>
                 <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                   <div className="absolute inset-[-2px] rounded-2xl bg-gradient-to-r from-[#1aa6b3] via-[#158993] to-[#1aa6b3] animate-glow-pulse"></div>
@@ -353,12 +335,8 @@ Please review this franchise application. Thank you!`;
                   <div className="p-3 bg-gradient-to-br from-[#1aa6b3]/10 to-[#158993]/5 rounded-xl w-fit mb-3 group-hover:scale-110 transition-transform duration-300 group-hover:shadow-lg group-hover:shadow-[#1aa6b3]/30">
                     <IconComponent className="w-6 h-6 text-[#1aa6b3]" />
                   </div>
-                  <h3 className="text-base sm:text-lg font-bold mb-2 text-[#1aa6b3] group-hover:text-[#158993] transition-colors">
-                    {benefit.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[#1aa6b3]/70 leading-relaxed">
-                    {benefit.description}
-                  </p>
+                  <h3 className="text-base sm:text-lg font-bold mb-2 text-[#1aa6b3] group-hover:text-[#158993] transition-colors">{benefit.title}</h3>
+                  <p className="text-xs sm:text-sm text-[#1aa6b3]/70 leading-relaxed">{benefit.description}</p>
                 </div>
               </div>
             );
@@ -367,10 +345,7 @@ Please review this franchise application. Thank you!`;
       </section>
 
       {/* Video Gallery Section */}
-      <section 
-        ref={videosRef}
-        className="fade-in-up bg-white py-8 sm:py-12 relative z-10"
-      >
+      <section ref={videosRef} className="fade-in-up bg-white py-8 sm:py-12 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="stagger-item text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-8 text-[#1aa6b3]">
             Learn More About Our Franchise
@@ -390,9 +365,7 @@ Please review this franchise application. Thank you!`;
                   </div>
                 </div>
                 <div className="p-3">
-                  <h3 className="text-xs sm:text-sm font-semibold text-[#1aa6b3] line-clamp-1">
-                    {video.title}
-                  </h3>
+                  <h3 className="text-xs sm:text-sm font-semibold text-[#1aa6b3] line-clamp-1">{video.title}</h3>
                 </div>
               </div>
             ))}
@@ -402,33 +375,15 @@ Please review this franchise application. Thank you!`;
 
       {/* Video Modal */}
       {selectedVideo && (
-        <div 
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in" 
-          onClick={() => setSelectedVideo(null)}
-        >
-          <div 
-            className="bg-white rounded-2xl overflow-hidden shadow-2xl max-w-4xl w-full animate-scale-in" 
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in" onClick={() => setSelectedVideo(null)}>
+          <div className="bg-white rounded-2xl overflow-hidden shadow-2xl max-w-4xl w-full animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="relative aspect-video bg-black">
-              <iframe
-                src={selectedVideo.embedUrl}
-                className="w-full h-full"
-                allow="autoplay; fullscreen"
-                allowFullScreen
-                title={selectedVideo.title}
-              ></iframe>
+              <iframe src={selectedVideo.embedUrl} className="w-full h-full" allow="autoplay; fullscreen" allowFullScreen title={selectedVideo.title}></iframe>
             </div>
             <div className="p-4 bg-gradient-to-r from-[#1aa6b3]/5 to-white flex justify-between items-center">
-              <h3 className="text-base sm:text-lg font-semibold text-[#1aa6b3]">
-                {selectedVideo.title}
-              </h3>
-              <button 
-                onClick={() => setSelectedVideo(null)}
-                className="text-sm text-[#1aa6b3] hover:text-[#158993] font-medium transition-colors flex items-center gap-2 bg-[#1aa6b3]/10 px-4 py-2 rounded-lg hover:bg-[#1aa6b3]/20"
-              >
-                <X className="w-4 h-4" />
-                Close
+              <h3 className="text-base sm:text-lg font-semibold text-[#1aa6b3]">{selectedVideo.title}</h3>
+              <button onClick={() => setSelectedVideo(null)} className="text-sm text-[#1aa6b3] hover:text-[#158993] font-medium transition-colors flex items-center gap-2 bg-[#1aa6b3]/10 px-4 py-2 rounded-lg hover:bg-[#1aa6b3]/20">
+                <X className="w-4 h-4" />Close
               </button>
             </div>
           </div>
@@ -436,48 +391,54 @@ Please review this franchise application. Thank you!`;
       )}
 
       {/* Application Form & Investment Section */}
-      <section 
-        ref={investmentRef}
-        className="fade-in-up max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10"
-      >
+      <section ref={investmentRef} className="fade-in-up max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border-t-4 border-[#1aa6b3]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Left Column - Investment Details */}
             <div className="stagger-item p-6 sm:p-8 lg:p-10 bg-gradient-to-br from-[#1aa6b3] to-[#158993] text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-5 relative z-10">
-                Investment Details
-              </h2>
+
+              {/* Currency indicator inside investment panel */}
+              <div className="flex items-center gap-2 mb-5 relative z-10">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">Investment Details</h2>
+                <span className="ml-auto bg-white/20 border border-white/30 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                  {curr.flag} {curr.code}
+                </span>
+              </div>
+
               <div className="space-y-3 sm:space-y-4 relative z-10">
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/15 transition-all">
                   <p className="text-xs sm:text-sm text-white/80 mb-1 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" />
-                    Initial Investment
+                    <DollarSign className="w-4 h-4" />Initial Investment
                   </p>
-                  <p className="text-xl sm:text-2xl font-bold">₹10 - ₹50 Lakhs</p>
+                  <p className="text-xl sm:text-2xl font-bold">{curr.investmentRange}</p>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/15 transition-all">
                   <p className="text-xs sm:text-sm text-white/80 mb-1 flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4" />
-                    Expected ROI
+                    <TrendingUp className="w-4 h-4" />Expected ROI
                   </p>
-                  <p className="text-xl sm:text-2xl font-bold">25-35% Annually</p>
+                  <p className="text-xl sm:text-2xl font-bold">{curr.roi}</p>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/15 transition-all">
                   <p className="text-xs sm:text-sm text-white/80 mb-1 flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Payback Period
+                    <Clock className="w-4 h-4" />Payback Period
                   </p>
-                  <p className="text-xl sm:text-2xl font-bold">2-3 Years</p>
+                  <p className="text-xl sm:text-2xl font-bold">{curr.payback}</p>
                 </div>
+
+                {/* Conversion note */}
+                {currency === 'CAD' && (
+                  <p className="text-xs text-white/60 italic pt-1">
+                    * Approximate conversion at 1 INR ≈ CA$0.0165
+                  </p>
+                )}
               </div>
             </div>
-            
+
             {/* Right Column - Application Form */}
             <div className="stagger-item bg-white p-6 sm:p-8 lg:p-10">
               <h3 className="text-lg sm:text-xl font-bold mb-5 text-[#1aa6b3] flex items-center gap-2">
-                <Briefcase className="w-5 h-5" />
-                Apply for Franchise
+                <Briefcase className="w-5 h-5" />Apply for Franchise
               </h3>
 
               {submitStatus === 'success' && (
@@ -485,36 +446,24 @@ Please review this franchise application. Thank you!`;
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-1" />
                     <div className="flex-1">
-                      <p className="text-green-800 font-bold text-base flex items-center gap-2 mb-3">
-                        Application Submitted! ✅
-                      </p>
+                      <p className="text-green-800 font-bold text-base flex items-center gap-2 mb-3">Application Submitted! ✅</p>
                       <div className="mb-3 p-3 bg-white border-2 border-green-300 rounded-lg relative shadow-sm">
                         <div className="flex justify-between items-center">
                           <div>
                             <p className="text-green-700 text-xs mb-1">Application number:</p>
                             <p className="text-green-800 font-bold text-base">{generatedApplicationNumber}</p>
                           </div>
-                          <button
-                            type="button"
-                            onClick={copyApplicationNumber}
-                            className="flex items-center gap-1 bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1.5 rounded-lg transition-all hover:scale-105 shadow-sm"
-                          >
+                          <button type="button" onClick={copyApplicationNumber} className="flex items-center gap-1 bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1.5 rounded-lg transition-all hover:scale-105 shadow-sm">
                             <Copy className="w-3 h-3" />
                             <span className="text-xs font-medium">Copy</span>
                           </button>
                         </div>
                         {showCopySuccess && (
-                          <div className="absolute -top-2 right-4 bg-green-500 text-white text-xs px-2 py-1 rounded-full animate-fade-in-out shadow-lg">
-                            Copied!
-                          </div>
+                          <div className="absolute -top-2 right-4 bg-green-500 text-white text-xs px-2 py-1 rounded-full animate-fade-in-out shadow-lg">Copied!</div>
                         )}
                       </div>
-                      <p className="text-green-700 text-sm mb-2">
-                        ✅ Confirmation sent to your email
-                      </p>
-                      <p className="text-green-700 text-sm">
-                        📞 We'll contact you within 2-3 business days
-                      </p>
+                      <p className="text-green-700 text-sm mb-2">✅ Confirmation sent to your email</p>
+                      <p className="text-green-700 text-sm">📞 We'll contact you within 2-3 business days</p>
                     </div>
                   </div>
                 </div>
@@ -523,142 +472,85 @@ Please review this franchise application. Thank you!`;
               {submitStatus === 'error' && (
                 <div className="mb-5 p-5 bg-red-50 border-2 border-red-200 rounded-xl shadow-lg">
                   <p className="text-red-800 font-bold text-base mb-2">Submission Failed! ❌</p>
-                  <p className="text-red-700 text-sm mb-3">
-                    Please try again or contact us at {companyPhone}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setSubmitStatus('')}
-                    className="text-red-700 hover:text-red-900 font-medium underline text-sm"
-                  >
-                    Try Again
-                  </button>
+                  <p className="text-red-700 text-sm mb-3">Please try again or contact us at {companyPhone}</p>
+                  <button type="button" onClick={() => setSubmitStatus('')} className="text-red-700 hover:text-red-900 font-medium underline text-sm">Try Again</button>
                 </div>
               )}
 
               {(!submitStatus || submitStatus === 'error') && (
                 <div className="space-y-3">
+                  {/* Name */}
                   <div>
-                    <label className="block text-xs font-semibold text-[#1aa6b3] mb-1.5">
-                      Full Name <span className="text-red-500">*</span>
-                    </label>
+                    <label className="block text-xs font-semibold text-[#1aa6b3] mb-1.5">Full Name <span className="text-red-500">*</span></label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#1aa6b3]/60" />
-                      <input 
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        placeholder="Your Full Name" 
-                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all hover:border-gray-300 text-[#1aa6b3] text-sm"
-                      />
+                      <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="Your Full Name"
+                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all hover:border-gray-300 text-[#1aa6b3] text-sm" />
                     </div>
                   </div>
+                  {/* Email */}
                   <div>
-                    <label className="block text-xs font-semibold text-[#1aa6b3] mb-1.5">
-                      Email Address <span className="text-red-500">*</span>
-                    </label>
+                    <label className="block text-xs font-semibold text-[#1aa6b3] mb-1.5">Email Address <span className="text-red-500">*</span></label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#1aa6b3]/60" />
-                      <input 
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="your@email.com" 
-                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all hover:border-gray-300 text-[#1aa6b3] text-sm"
-                      />
+                      <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="your@email.com"
+                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all hover:border-gray-300 text-[#1aa6b3] text-sm" />
                     </div>
                   </div>
+                  {/* Phone */}
                   <div>
-                    <label className="block text-xs font-semibold text-[#1aa6b3] mb-1.5">
-                      Phone Number <span className="text-red-500">*</span>
-                    </label>
+                    <label className="block text-xs font-semibold text-[#1aa6b3] mb-1.5">Phone Number <span className="text-red-500">*</span></label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#1aa6b3]/60" />
-                      <input 
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        placeholder="+91 98765 43210" 
-                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all hover:border-gray-300 text-[#1aa6b3] text-sm"
-                      />
+                      <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="+91 98765 43210"
+                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all hover:border-gray-300 text-[#1aa6b3] text-sm" />
                     </div>
                   </div>
+                  {/* City */}
                   <div>
-                    <label className="block text-xs font-semibold text-[#1aa6b3] mb-1.5">
-                      City <span className="text-red-500">*</span>
-                    </label>
+                    <label className="block text-xs font-semibold text-[#1aa6b3] mb-1.5">City <span className="text-red-500">*</span></label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#1aa6b3]/60" />
-                      <input 
-                        type="text"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleInputChange}
-                        placeholder="Your City" 
-                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all hover:border-gray-300 text-[#1aa6b3] text-sm"
-                      />
+                      <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="Your City"
+                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all hover:border-gray-300 text-[#1aa6b3] text-sm" />
                     </div>
                   </div>
+                  {/* Investment - dynamic options based on currency */}
                   <div>
                     <label className="block text-xs font-semibold text-[#1aa6b3] mb-1.5">
-                      Investment Capacity <span className="text-red-500">*</span>
+                      Investment Capacity ({curr.code}) <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#1aa6b3]/60" />
-                      <select
-                        name="investment"
-                        value={formData.investment}
-                        onChange={handleInputChange}
-                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all appearance-none bg-white hover:border-gray-300 text-[#1aa6b3] text-sm"
-                      >
+                      <select name="investment" value={formData.investment} onChange={handleInputChange}
+                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all appearance-none bg-white hover:border-gray-300 text-[#1aa6b3] text-sm">
                         <option value="">Select investment range</option>
-                        {investmentOptions.map(option => (
+                        {curr.investmentOptions.map(option => (
                           <option key={option} value={option}>{option}</option>
                         ))}
                       </select>
                     </div>
                   </div>
+                  {/* Experience */}
                   <div>
-                    <label className="block text-xs font-semibold text-[#1aa6b3] mb-1.5">
-                      Business Experience (Optional)
-                    </label>
+                    <label className="block text-xs font-semibold text-[#1aa6b3] mb-1.5">Business Experience (Optional)</label>
                     <div className="relative">
                       <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#1aa6b3]/60" />
-                      <input 
-                        type="text"
-                        name="experience"
-                        value={formData.experience}
-                        onChange={handleInputChange}
-                        placeholder="e.g., 5 years in retail" 
-                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all hover:border-gray-300 text-[#1aa6b3] text-sm"
-                      />
+                      <input type="text" name="experience" value={formData.experience} onChange={handleInputChange} placeholder="e.g., 5 years in retail"
+                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all hover:border-gray-300 text-[#1aa6b3] text-sm" />
                     </div>
                   </div>
+                  {/* Message */}
                   <div>
-                    <label className="block text-xs font-semibold text-[#1aa6b3] mb-1.5">
-                      Additional Information (Optional)
-                    </label>
+                    <label className="block text-xs font-semibold text-[#1aa6b3] mb-1.5">Additional Information (Optional)</label>
                     <div className="relative">
                       <MessageSquare className="absolute left-3 top-3 w-4 h-4 text-[#1aa6b3]/60" />
-                      <textarea
-                        name="message"
-                        value={formData.message}
-                        onChange={handleInputChange}
-                        rows="3"
-                        placeholder="Tell us about your goals..."
-                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all resize-none hover:border-gray-300 text-[#1aa6b3] text-sm"
-                      ></textarea>
+                      <textarea name="message" value={formData.message} onChange={handleInputChange} rows="3" placeholder="Tell us about your goals..."
+                        className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-[#1aa6b3] focus:outline-none focus:ring-2 focus:ring-[#1aa6b3]/20 transition-all resize-none hover:border-gray-300 text-[#1aa6b3] text-sm"></textarea>
                     </div>
                   </div>
-                  <button 
-                    type="button"
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className="w-full bg-gradient-to-r from-[#1aa6b3] to-[#158993] hover:shadow-xl text-white font-bold py-3 px-5 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-base hover:scale-[1.02] relative overflow-hidden group mt-2"
-                  >
+                  <button type="button" onClick={handleSubmit} disabled={isSubmitting}
+                    className="w-full bg-gradient-to-r from-[#1aa6b3] to-[#158993] hover:shadow-xl text-white font-bold py-3 px-5 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-base hover:scale-[1.02] relative overflow-hidden group mt-2">
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                     {isSubmitting ? (
                       <span className="flex items-center justify-center relative z-10">
@@ -680,113 +572,43 @@ Please review this franchise application. Thank you!`;
       </section>
 
       {/* FAQ Section */}
-      <section 
-        ref={faqRef}
-        className="fade-in-up max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10"
-      >
+      <section ref={faqRef} className="fade-in-up max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
         <h2 className="stagger-item text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-8 text-[#1aa6b3]">
           Frequently Asked Questions
         </h2>
         <div className="max-w-3xl mx-auto space-y-3 sm:space-y-4">
           {[
-            {
-              q: "What support do you provide?",
-              a: "Comprehensive training, marketing support, operational guidance, and ongoing business consulting."
-            },
-            {
-              q: "How long does it take to open?",
-              a: "Typically 3-6 months from signing the agreement to opening day."
-            },
-            {
-              q: "What are the territory rights?",
-              a: "Exclusive territory rights within a defined geographic area."
-            },
-            {
-              q: "What is the franchise fee?",
-              a: "Initial franchise fee ranges from ₹2-5 lakhs based on location."
-            }
+            { q: "What support do you provide?", a: "Comprehensive training, marketing support, operational guidance, and ongoing business consulting." },
+            { q: "How long does it take to open?", a: "Typically 3-6 months from signing the agreement to opening day." },
+            { q: "What are the territory rights?", a: "Exclusive territory rights within a defined geographic area." },
+            { q: "What is the franchise fee?", a: `Initial franchise fee ranges from ${curr.faqFee}.` },
           ].map((faq, index) => (
             <div key={index} className="stagger-item bg-white rounded-2xl shadow-md p-4 sm:p-6 border-l-4 border-[#1aa6b3] hover:shadow-lg transition-all hover:scale-[1.01]">
-              <h3 className="text-sm sm:text-base font-semibold mb-2 text-[#1aa6b3]">
-                {faq.q}
-              </h3>
-              <p className="text-xs sm:text-sm text-[#1aa6b3]/70 leading-relaxed">
-                {faq.a}
-              </p>
+              <h3 className="text-sm sm:text-base font-semibold mb-2 text-[#1aa6b3]">{faq.q}</h3>
+              <p className="text-xs sm:text-sm text-[#1aa6b3]/70 leading-relaxed">{faq.a}</p>
             </div>
           ))}
         </div>
       </section>
 
       <style>{`
-        .fade-in-up {
-          opacity: 0;
-          transform: translateY(30px);
-          transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-                      transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .fade-in-up.animate-in {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        .stagger-item {
-          opacity: 0;
-          transform: translateY(20px) scale(0.97);
-          transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-                      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .stagger-item.stagger-in {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
-        @keyframes glow-pulse {
-          0%, 100% { opacity: 0.5; filter: blur(8px); }
-          50% { opacity: 0.8; filter: blur(12px); }
-        }
-        .animate-glow-pulse {
-          animation: glow-pulse 2s ease-in-out infinite;
-        }
-        @keyframes scale-in {
-          0% { opacity: 0; transform: scale(0.95); }
-          100% { opacity: 1; transform: scale(1); }
-        }
-        .animate-scale-in {
-          animation: scale-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        @keyframes fade-in {
-          0% { opacity: 0; }
-          100% { opacity: 1; }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.2s ease-out;
-        }
-        @keyframes fade-in-out {
-          0% { opacity: 0; transform: translateY(-10px); }
-          20% { opacity: 1; transform: translateY(0); }
-          80% { opacity: 1; transform: translateY(0); }
-          100% { opacity: 0; transform: translateY(-10px); }
-        }
-        .animate-fade-in-out {
-          animation: fade-in-out 2s ease-in-out;
-        }
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        .animate-bounce-slow {
-          animation: bounce-slow 2s ease-in-out infinite;
-        }
+        .fade-in-up { opacity: 0; transform: translateY(30px); transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1), transform 0.4s cubic-bezier(0.4,0,0.2,1); }
+        .fade-in-up.animate-in { opacity: 1; transform: translateY(0); }
+        .stagger-item { opacity: 0; transform: translateY(20px) scale(0.97); transition: opacity 0.3s cubic-bezier(0.4,0,0.2,1), transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+        .stagger-item.stagger-in { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes glow-pulse { 0%,100%{opacity:.5;filter:blur(8px);}50%{opacity:.8;filter:blur(12px);} }
+        .animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+        @keyframes scale-in { 0%{opacity:0;transform:scale(.95);}100%{opacity:1;transform:scale(1);} }
+        .animate-scale-in { animation: scale-in 0.3s cubic-bezier(0.4,0,0.2,1); }
+        @keyframes fade-in { 0%{opacity:0;}100%{opacity:1;} }
+        .animate-fade-in { animation: fade-in 0.2s ease-out; }
+        @keyframes fade-in-out { 0%{opacity:0;transform:translateY(-10px);}20%{opacity:1;transform:translateY(0);}80%{opacity:1;transform:translateY(0);}100%{opacity:0;transform:translateY(-10px);} }
+        .animate-fade-in-out { animation: fade-in-out 2s ease-in-out; }
+        @keyframes bounce-slow { 0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);} }
+        .animate-bounce-slow { animation: bounce-slow 2s ease-in-out infinite; }
         @media (prefers-reduced-motion: reduce) {
-          .fade-in-up, .stagger-item {
-            opacity: 1;
-            transform: none;
-            transition: none;
-          }
-          .animate-scale-in, .animate-fade-in,
-          .animate-fade-in-out, .animate-bounce-slow,
-          .animate-glow-pulse {
-            animation: none;
-          }
+          .fade-in-up,.stagger-item{opacity:1;transform:none;transition:none;}
+          .animate-scale-in,.animate-fade-in,.animate-fade-in-out,.animate-bounce-slow,.animate-glow-pulse{animation:none;}
         }
       `}</style>
     </div>
